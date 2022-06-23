@@ -10,7 +10,7 @@ def main():
     # loads everything as 8-bit images
     image = np.array(Image.open("original.png"))
     masks = [np.array(Image.open(f"{i}.png")) for i in (1, 2, 3)]
-    filtered = filter(np.stack(masks, axis=-1), image)
+    filtered = filter(np.stack(masks, axis=-1), image).astype(int)
 
     union = np.sum(filtered, axis=-1)
     # prefer sparsity
@@ -21,38 +21,23 @@ def main():
     difference = np.absolute(union.astype(int) - 255).astype(np.uint8)
 
     # handle where the sum of the masks is too large
-    smallest = np.argsort(filtered[union > 255], axis=1)
-    # subtract from smallest channels first to increase sparsity
-    # cycle to next channel at 0 to avoid integer underflow
-    remaining = difference[union > 255]
-    for i, channels in enumerate(filtered[union > 255]):
-        channel = 0
-        while remaining[i] > 0:
-            value = channels[smallest[i][channel]]
-            if value >= remaining[i]:
-                filtered[union > 255][smallest[i][channel]] -= remaining[i]
-                remaining[i] = 0
-            else:
-                remaining[i] -= value
-                filtered[union > 255][smallest[i][channel]] = 0
-                channel += 1
-
-
-    # indices = np.zeros_like(remaining)
-    # while remaining > 0:
-    #     value = filtered[union > 255, smallest]
-    #     if value >= remaining:
-    #         filtered[union > 255, smallest] -= remaining
-    #         remaining = 0
-    #     else:
-
+    # subtract from smallest channels to increase sparsity
+    smallest_i = np.argsort(filtered[union > 255], axis=1)
+    # initially subtract from the smallest channel, allowing for negatives
+    filtered[union > 255, smallest_i[..., 0]] -= difference[union > 255]
+    # cancel negatives by adding to the next largest channel and setting to zero
+    ordered = np.take_along_axis(filtered[union > 255], smallest_i, axis=-1)
+    ordered_negative = ordered[np.where(ordered < 0)[0]]
+    ordered_negative[..., 1] += ordered_negative[..., 0]
+    ordered_negative[..., 0] = 0
+    # TODO extend for multiple dimensions
 
     # filtered[union > 255, smallest] -= difference[union > 255]
 
     # handle where the sum of the masks is too small
-    largest = np.argmax(filtered[union < 255], axis=-1)
     # add to largest channel to increase sparsity
-    filtered[union < 255, largest] += difference[union < 255]
+    largest_i = np.argmax(filtered[union < 255], axis=-1)
+    filtered[union < 255, largest_i] += difference[union < 255]
 
     pass
 
