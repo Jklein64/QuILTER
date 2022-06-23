@@ -21,12 +21,36 @@ def main():
     difference = np.absolute(union.astype(int) - 255).astype(np.uint8)
 
     # handle where the sum of the masks is too large
-    smallest = np.argmin(filtered[union > 255], axis=1)
-    # subtract from smallest channel to increase sparsity
-    filtered[union > 255, smallest] -= difference[union > 255]
+    smallest = np.argsort(filtered[union > 255], axis=1)
+    # subtract from smallest channels first to increase sparsity
+    # cycle to next channel at 0 to avoid integer underflow
+    remaining = difference[union > 255]
+    for i, channels in enumerate(filtered[union > 255]):
+        channel = 0
+        while remaining[i] > 0:
+            value = channels[smallest[i][channel]]
+            if value >= remaining[i]:
+                filtered[union > 255][smallest[i][channel]] -= remaining[i]
+                remaining[i] = 0
+            else:
+                remaining[i] -= value
+                filtered[union > 255][smallest[i][channel]] = 0
+                channel += 1
+
+
+    # indices = np.zeros_like(remaining)
+    # while remaining > 0:
+    #     value = filtered[union > 255, smallest]
+    #     if value >= remaining:
+    #         filtered[union > 255, smallest] -= remaining
+    #         remaining = 0
+    #     else:
+
+
+    # filtered[union > 255, smallest] -= difference[union > 255]
 
     # handle where the sum of the masks is too small
-    largest = np.argmax(filtered[union > 255], axis=-1)
+    largest = np.argmax(filtered[union < 255], axis=-1)
     # add to largest channel to increase sparsity
     filtered[union < 255, largest] += difference[union < 255]
 
