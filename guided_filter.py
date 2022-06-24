@@ -27,9 +27,10 @@ def main():
     filtered[union > 255, smallest_i[..., 0]] -= difference[union > 255]
     # cancel negatives by adding to the next largest channel and setting to zero
     ordered = np.take_along_axis(filtered[union > 255], smallest_i, axis=-1)
-    ordered_negative = ordered[np.where(ordered < 0)[0]]
-    ordered_negative[..., 1] += ordered_negative[..., 0]
-    ordered_negative[..., 0] = 0
+    for channel in range(len(masks) - 1):
+        ordered_negative = ordered[np.where(ordered < 0)[0]]
+        ordered_negative[..., channel + 1] += ordered_negative[..., channel]
+        ordered_negative[..., channel] = 0
     # TODO extend for multiple dimensions
 
     # filtered[union > 255, smallest] -= difference[union > 255]
