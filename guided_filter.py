@@ -6,39 +6,27 @@ GUIDED_FILTER_RADIUS = 30
 # taken from example on GitHub
 GUIDED_FILTER_EPSILON = 1e-6 * 255 ** 2
 
+# note: adding with a limit and then adding the rest
+# to the next item in the array until all of the values
+# have been added is a really hard problem to solve with
+# raw numpy arrays.  Why?
+
 def main():
     # loads everything as 8-bit images
     image = np.array(Image.open("original.png"))
     masks = [np.array(Image.open(f"{i}.png")) for i in (1, 2, 3)]
     filtered = filter(np.stack(masks, axis=-1), image).astype(int)
 
-    union = np.sum(filtered, axis=-1)
-    # prefer sparsity
-    # subtract from smallest channel
-    # add to largest channel
-
+    # scale to keep the ratio between masks but have a max sum of 255
+    scaled = (255 * filtered / np.sum(filtered, axis=-1, keepdims=True)).astype(np.uint8)
+    ascending_i = np.argsort(scaled, axis=-1)
+    union = np.sum(scaled, axis=-1)
     # absolute value to keep as uint8; direction is from union > 255
     difference = np.absolute(union.astype(int) - 255).astype(np.uint8)
-
-    # handle where the sum of the masks is too large
-    # subtract from smallest channels to increase sparsity
-    smallest_i = np.argsort(filtered[union > 255], axis=1)
-    # initially subtract from the smallest channel, allowing for negatives
-    filtered[union > 255, smallest_i[..., 0]] -= difference[union > 255]
-    # cancel negatives by adding to the next largest channel and setting to zero
-    ordered = np.take_along_axis(filtered[union > 255], smallest_i, axis=-1)
-    for channel in range(len(masks) - 1):
-        ordered_negative = ordered[np.where(ordered < 0)[0]]
-        ordered_negative[..., channel + 1] += ordered_negative[..., channel]
-        ordered_negative[..., channel] = 0
-    # TODO extend for multiple dimensions
-
-    # filtered[union > 255, smallest] -= difference[union > 255]
-
-    # handle where the sum of the masks is too small
-    # add to largest channel to increase sparsity
-    largest_i = np.argmax(filtered[union < 255], axis=-1)
-    filtered[union < 255, largest_i] += difference[union < 255]
+    # create array to add the difference to the largest entry
+    addend = np.where(ascending_i[union < 255] == len(masks) - 1, difference[union < 255, np.newaxis], 0)
+    # TODO doesn't currently account for integer overflow. is that even possible?
+    scaled[union < 255] += addend
 
     pass
 
