@@ -1,5 +1,6 @@
 import numpy as np
 from PIL import Image
+import os
 
 from time import perf_counter
 
@@ -10,6 +11,9 @@ GUIDED_FILTER_EPSILON = 1e-6 * 255 ** 2
 
 
 def main():
+    # loads everything as 8-bit, 3-channel images
+    image = np.array(Image.open("horse/horse.png"))[..., 0:3]
+    masks = [np.array(Image.open(f"horse/masks/{file}")) for file in os.listdir("horse/masks")]
 
     start = perf_counter()
 
