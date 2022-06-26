@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "quilter"
+version = "0.0.1"
+description = "Quick feathering of image segments with guided filter."
+readme = "README.md"
+author = { name = "Jason Klein", email = "kleinjason234@gmail.com" }
+dependencies = [
+    "numpy",
+    "pillow",
+    "opencv-python",
+    "opencv-contrib-python"
+]
+classifiers = [
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python :: 3.7",
+    "Topic :: Multimedia :: Graphics",
+    "Topic :: Scientific/Engineering :: Image Processing"
+]
