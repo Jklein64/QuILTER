@@ -1,13 +1,12 @@
 [build-system]
-requires = ["setuptools"]
-build-backend = "setuptools.build_meta"
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
 
 [project]
 name = "quilter"
-version = "0.0.1"
-description = "Quick feathering of image segments with guided filter."
+authors = [{name = "Jason Klein", email = "kleinjason234@gmail.com"}]
 readme = "README.md"
-author = { name = "Jason Klein", email = "kleinjason234@gmail.com" }
+dynamic = ["version", "description"]
 dependencies = [
     "numpy",
     "pillow",
