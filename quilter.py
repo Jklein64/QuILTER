@@ -1,3 +1,7 @@
+"""Quick feathering of image segments with guided filter."""
+
+__version__ = "0.0.1"
+
 from __future__ import annotations
 from argparse import ArgumentParser
 from typing import overload
