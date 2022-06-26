@@ -1,8 +1,9 @@
 """Quick feathering of image segments with guided filter."""
 
+from __future__ import annotations
+
 __version__ = "0.0.1"
 
-from __future__ import annotations
 from argparse import ArgumentParser
 from typing import overload
 from PIL import Image
@@ -12,6 +13,7 @@ import os
 
 
 def main():
+    """Handles the CLI.  Run `quilter -h` for more information."""
     parser = ArgumentParser(description="Feather binary masks from semantic segmentation using a guided filter without affecting their union.")
     parser.add_argument("image", help="Path to the original image file")
     parser.add_argument("masks", help="Path to a directory containing binary masks for each segment; the union of the masks covers the whole image")
@@ -62,27 +64,12 @@ def feather_segments(image: np.ndarray, labels_or_masks_array: np.ndarray | list
 
 
 def show(image):
-    """Helper function for debugging"""
+    """Helper function to show image data."""
     Image.fromarray(image).show()
 
 
-def pca(data, dim):
-    # should this be standardized?
-    mu = np.mean(data, axis=0)
-    sigma = np.std(data, axis=0)
-    standardized = (data - mu) / sigma
-    covariance = np.cov(standardized.T)
-    eigenvalues, eigenvectors = np.linalg.eig(covariance)
-    order = np.flip(np.argsort(eigenvalues))
-    basis = eigenvectors[..., order][..., :dim]
-    projected = data @ basis
-    projected -= np.min(projected, axis=0)
-    projected /= np.max(projected, axis=0)
-    return projected
-
-
 def filter(image, guide, radius, epsilon):
-    """Apply He et al.'s guided filter."""
+    """Apply He et al.'s guided filter.  When feathering a mask, masks are the image, and the original image is the guide."""
     from cv2.ximgproc import guidedFilter
     return guidedFilter(guide, image, radius, epsilon)
 
@@ -110,6 +97,20 @@ def apply_mask(image, mask):
 
 def apply_pca(image_like):
     """Given per-pixel data, project to 3 dimensions with PCA and visualize."""
+    def pca(data, dim):
+        # should this be standardized?
+        mu = np.mean(data, axis=0)
+        sigma = np.std(data, axis=0)
+        standardized = (data - mu) / sigma
+        covariance = np.cov(standardized.T)
+        eigenvalues, eigenvectors = np.linalg.eig(covariance)
+        order = np.flip(np.argsort(eigenvalues))
+        basis = eigenvectors[..., order][..., :dim]
+        projected = data @ basis
+        projected -= np.min(projected, axis=0)
+        projected /= np.max(projected, axis=0)
+        return projected
+
     w, h, d = np.shape(image_like)
     data = np.reshape(image_like, (w * h, d))
     projected = np.reshape(pca(data, dim=3), (w, h, 3))
