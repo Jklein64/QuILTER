@@ -9,8 +9,8 @@ def main():
     parser = ArgumentParser(description="Feather binary masks from semantic segmentation using a guided filter without affecting their union.")
     parser.add_argument("image", help="Path to the original image file")
     parser.add_argument("masks", help="Path to a directory containing binary masks for each segment; the union of the masks covers the whole image")
-    parser.add_argument("-r", "--radius", default=8, help="Guided filter window radius, default is 8")
-    parser.add_argument("-e", "--epsilon", default=1e-6, help="Guided filter epsilon, default is 1e-6")
+    parser.add_argument("-r", "--radius", type=int, default=8, help="Guided filter window radius, default is 8")
+    parser.add_argument("-e", "--epsilon", type=float, default=1e-6, help="Guided filter epsilon, default is 1e-6")
     parser.add_argument("-o", "--output", help="Output directory for the feathered masks. Not supplying this argument will show them instead")
     args = parser.parse_args()
 
