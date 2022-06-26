@@ -10,9 +10,9 @@ The name "QuILTER" is both a portmanteau of the project's subtitle and an allusi
 
 # Usage
 
-download cod
+Until I feel like figuring out how to put this project on PyPI, you can either install the package through the `.tar.gz` file in this repository's Packages section, or clone the repo, create a [Conda](https://docs.conda.io/projects/conda/en/latest/user-guide/getting-started.html) environment using `conda env create -f environment.yml`, and build the project using `flit build`, which will create the same `.tar.gz` file in the `dist/` folder.
 
-run
+Once installed, access the CLI help with `quilter -h` or import the `feather_segments()` function from the `quilter` package.
 
 # Examples
 
