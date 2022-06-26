@@ -6,11 +6,11 @@ Feather binary masks from semantic segmentation using [He et al.'s guided filter
 | :-------------------------------: | :---------------------------------: | :--------------------------------: |
 |         `car-kids` image          |          before feathering          |       feathered (0.186 sec)        |
 
-The name "QuILTER" is both a portmanteau of the project's subtitle and an allusion to quills, which are made with feathers.
+"QuILTER" is both a portmanteau of the project's subtitle and an allusion to quills, which are made with feathers.
 
 # Usage
 
-Until I feel like figuring out how to put this project on PyPI, you can either install the package through the `.tar.gz` file in this repository's Packages section, or clone the repo, create a [Conda](https://docs.conda.io/projects/conda/en/latest/user-guide/getting-started.html) environment using `conda env create -f environment.yml`, and build the project using `flit build`, which will create the same `.tar.gz` file in the `dist/` folder.
+Until I feel like figuring out how to put this project on PyPI, you can either install the package through the `.tar.gz` file in [this repository's Releases section](https://github.com/Jklein64/QuILTER/releases), or clone the repo, create a [Conda](https://docs.conda.io/projects/conda/en/latest/user-guide/getting-started.html) environment using `conda env create -f environment.yml`, and build the project using `flit build`, which will create the same `.tar.gz` file in the `dist/` folder.
 
 Once installed, access the CLI help with `quilter -h` or import the `feather_segments()` function from the `quilter` package.
 
@@ -38,8 +38,8 @@ For example, below are the naively-filtered masks for the `horse` image. The rig
 
 | ![](images/misc/bad-1.png) | ![](images/misc/bad-2.png) | ![](images/misc/bad-3.png) | ![](images/misc/bad-union.png) |
 | :------------------------: | :------------------------: | :------------------------: | :----------------------------: |
-|        naive mask 1        |        naive mask 2        |        naive mask 3        |   white where `union != 255`   |
+|        naive mask 1        |        naive mask 2        |        naive mask 3        |         `union != 255`         |
 
 The code handles pixels whose corresponding mask weights sum to a value greater than 255 by scaling down _all_ of that pixel's corresponding mask weights until they sum to exactly 255. Since the resulting values aren't guaranteed to be whole numbers, each of the mask weights is floored when converted into 8-bit unsigned integers. The sum of the weights is now less than or equal to 255. In order to make them all equal, the difference is added to the largest of the mask weights, since that's the likely classification from the original segmentation result.
 
-Somehow adding to the largest value doesn't cause the union to integer overflow for the example images ¯\\\_(ツ)\_/¯
+Somehow adding to the largest value doesn't cause the union to integer overflow for the examples ¯\\\_(ツ)\_/¯
