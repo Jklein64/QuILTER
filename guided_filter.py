@@ -6,10 +6,6 @@ GUIDED_FILTER_RADIUS = 30
 # taken from example on GitHub
 GUIDED_FILTER_EPSILON = 1e-6 * 255 ** 2
 
-# note: adding with a limit and then adding the rest
-# to the next item in the array until all of the values
-# have been added is a really hard problem to solve with
-# raw numpy arrays.  Why?
 
 def main():
     # loads everything as 8-bit images
@@ -58,17 +54,9 @@ def filter(image, guide):
 
 
 def apply_mask(image, mask):
+    """Use mask as alpha channel in image."""
     return np.insert(image[..., 0:3], 3, mask, axis=-1)
 
 
 if __name__ == "__main__":
     main()
-
-# it turns out that part of the issue is also integer overflow.
-# in addition to having parts of the image that weren't fully
-# covered by the union of the masks, there were others that 
-# were over-covered by the union.  Integer overflow made it
-# look like these areas weren't covered at all :O
-
-# where s is the sum of the filtered array
-# show((np.where(s > 255, s-255, 0) * 255/28).astype(np.uint8))
