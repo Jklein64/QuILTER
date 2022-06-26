@@ -50,6 +50,7 @@ def feather_segments(image: np.ndarray, masks_array: list[np.ndarray], radius: i
     ...
 
 def feather_segments(image: np.ndarray, labels_or_masks_array: np.ndarray | list[np.ndarray], radius: int = 8, epsilon: float = 1e-6):
+    """Given an image and either (a) an image-like array mapping each pixel to an integer label or (b) a list of binary masks, use the image as a guide to feather each of the regions represented by unique labels or masks, returning a list of 8-bit masks whose union is completely opaque. The guided filter parameters `radius` and `epsilon` are 8 and 1e-6 by default."""
     if isinstance(labels_or_masks_array, np.ndarray):
         labels = labels_or_masks_array
         masks = [labels == i for i in np.unique(labels)]
