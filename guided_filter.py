@@ -1,6 +1,8 @@
 import numpy as np
 from PIL import Image
 
+from time import perf_counter
+
 # determined through experimentation
 GUIDED_FILTER_RADIUS = 30
 # taken from example on GitHub
@@ -8,9 +10,9 @@ GUIDED_FILTER_EPSILON = 1e-6 * 255 ** 2
 
 
 def main():
-    # loads everything as 8-bit images
-    image = np.array(Image.open("original.png"))
-    masks = [np.array(Image.open(f"{i}.png")) for i in (1, 2, 3)]
+
+    start = perf_counter()
+
     filtered = filter(np.stack(masks, axis=-1), image).astype(int)
 
     # scale to keep the ratio between masks but have a max sum of 255
@@ -37,6 +39,9 @@ def main():
         union = np.sum(scaled, axis=-1)
         difference = np.absolute(union.astype(int) - 255).astype(np.uint8)
         i += 1
+
+    end = perf_counter()
+    print(f"took {end - start} seconds to complete the operation.")
 
     if i == 1:
         print("finished on the first iteration.  Do you really need the repetitive process?")
