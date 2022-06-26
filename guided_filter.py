@@ -57,6 +57,20 @@ def show(image):
     Image.fromarray(image).show()
 
 
+def pca(data, dim):
+    mu = np.mean(data, axis=0)
+    sigma = np.std(data, axis=0)
+    standardized = (data - mu) / sigma
+    covariance = np.cov(standardized.T)
+    eigenvalues, eigenvectors = np.linalg.eig(covariance)
+    order = np.flip(np.argsort(eigenvalues))
+    basis = eigenvectors[..., order][..., :dim]
+    projected = data @ basis
+    projected -= np.min(projected, axis=0)
+    projected /= np.max(projected, axis=0)
+    return projected
+
+
 def filter(image, guide):
     from cv2.ximgproc import guidedFilter
     return guidedFilter(guide, image, GUIDED_FILTER_RADIUS, GUIDED_FILTER_EPSILON)
@@ -65,6 +79,14 @@ def filter(image, guide):
 def apply_mask(image, mask):
     """Use mask as alpha channel in image."""
     return np.insert(image[..., 0:3], 3, mask, axis=-1)
+
+
+def apply_pca(image_like):
+    """Given per-pixel data, project to 3 dimensions with PCA and visualize."""
+    w, h, d = np.shape(image_like)
+    data = np.reshape(image_like, (w * h, d))
+    projected = np.reshape(pca(data, dim=3), (w, h, 3))
+    return (projected * 255).astype(np.uint8)
 
 
 if __name__ == "__main__":
