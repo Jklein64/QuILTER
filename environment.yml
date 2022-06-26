@@ -11,3 +11,5 @@ dependencies:
       # guided filter
       - opencv-python
       - opencv-contrib-python
+      # packaging
+      - flit
