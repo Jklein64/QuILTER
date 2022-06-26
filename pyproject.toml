@@ -19,3 +19,6 @@ classifiers = [
     "Topic :: Multimedia :: Graphics",
     "Topic :: Scientific/Engineering :: Image Processing"
 ]
+
+[project.scripts]
+quilter = "quilter:main"
